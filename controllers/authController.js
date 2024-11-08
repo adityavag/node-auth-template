@@ -1,16 +1,16 @@
 const User = require('../models/user');
 
-const registerUser = async (req,res) => {
-    const {username, email, password} = req.body;
-    
-    if(!username || !email || ! password) return res.status(400).json({
+const registerUser = async (req, res) => {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) return res.status(400).json({
         message: 'All Fields Are Required'
     });
 
     const existingUser = await User.findOne({
-        $or: [{username}, {email}]
+        $or: [{ username }, { email }]
     });
-    if(existingUser) return res.status(400).json({
+    if (existingUser) return res.status(400).json({
         message: "Username/E-Mail Already In User"
     });
 
@@ -26,5 +26,30 @@ const registerUser = async (req,res) => {
     });
 }
 
+const login = async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        if (!username || !password) return res.status(400).json({
+            message: "All Fields Are Required"
+        });
 
-module.exports = registerUser;
+        const user = await User.findOne({ username });
+        if (!user) return res.status(401).json({
+            message: "Invalid Username or Password"
+        });
+
+        if (!(password == user.password)) return res.status(401).json({
+            message: "Invalid Password"
+        });
+
+        res.status(200).json({
+            message: "Login Successfull"
+        });
+    } catch (err) {
+        return res.status(500).json({
+            message: "Login Failed. Please Try Later"
+        });
+    }
+}
+
+module.exports = { registerUser, login };

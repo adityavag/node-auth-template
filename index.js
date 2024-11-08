@@ -15,7 +15,7 @@ mongoose
         console.log(`Database Not Connected \n${err}`)
     })
 
-app.use('/user', authRoute);
+app.use('/users/', authRoute);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server Running @ ${process.env.PORT}`)
