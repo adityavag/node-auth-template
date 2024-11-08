@@ -11,7 +11,7 @@ const registerUser = async (req, res) => {
         $or: [{ username }, { email }]
     });
     if (existingUser) return res.status(400).json({
-        message: "Username/E-Mail Already In User"
+        message: "Username/E-Mail Already In Use"
     });
 
     const newUser = new User({
@@ -22,28 +22,30 @@ const registerUser = async (req, res) => {
     await newUser.save();
 
     res.status(201).json({
-        message: "User Registered Successfully"
+        message: "User Registered Successfully",
+        user: { username: newUser.username, email: newUser.email }
     });
 }
 
 const login = async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     try {
-        if (!username || !password) return res.status(400).json({
+        if (!email || !password) return res.status(400).json({
             message: "All Fields Are Required"
         });
 
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ email });
         if (!user) return res.status(401).json({
             message: "Invalid Username or Password"
         });
 
-        if (!(password == user.password)) return res.status(401).json({
+        if (!(password === user.password)) return res.status(401).json({
             message: "Invalid Password"
         });
 
         res.status(200).json({
-            message: "Login Successfull"
+            message: "Login Successful",
+            user: { username: user.username, email: user.email }
         });
     } catch (err) {
         return res.status(500).json({
