@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const bcrypt = require('bcryptjs')
 
 const registerUser = async (req, res) => {
     const { username, email, password } = req.body;
@@ -13,11 +14,11 @@ const registerUser = async (req, res) => {
     if (existingUser) return res.status(400).json({
         message: "Username/E-Mail Already In Use"
     });
-
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
         username,
         email,
-        password: password
+        password: hashedPassword
     });
     await newUser.save();
 
@@ -39,7 +40,7 @@ const login = async (req, res) => {
             message: "Invalid Username or Password"
         });
 
-        if (!(password === user.password)) return res.status(401).json({
+        if (await bcrypt.compare(password, user.password)) return res.status(401).json({
             message: "Invalid Password"
         });
 
